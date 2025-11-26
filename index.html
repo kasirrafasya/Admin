@@ -2,12 +2,15 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"> <!-- FIX HP -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>Login Admin</title>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
@@ -19,8 +22,8 @@
             animation: gradientMove 12s ease infinite;
 
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         @keyframes gradientMove {
@@ -29,92 +32,75 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 🔥 Fix: width pakai persen, supaya otomatis ngepas di HP */
+        /* 🔥 kotak login rapi */
         .login-box {
             width: 90%;
-            max-width: 350px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.17);
+            max-width: 330px;
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.14);
             border-radius: 18px;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             text-align: center;
             box-shadow: 0 8px 25px rgba(0,0,0,0.25);
         }
 
         .login-box img {
-            width: 85px;        /* diperkecil agar pas */
-            height: 85px;
-            border-radius: 50%;
+            width: 90px;
+            height: 90px;
             object-fit: cover;
-            border: 3px solid rgba(255,255,255,0.8);
-            margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.7);
+            margin-bottom: 12px;
         }
 
         .login-box h2 {
             color: white;
-            margin-bottom: 8px;
-            font-size: 20px;
+            margin: 5px 0 10px 0;
+            font-size: 22px;
+            font-weight: 600;
         }
 
         .subtitle {
-            color: #e0eaff;
-            opacity: 0.9;
-            margin-bottom: 18px;
+            color: #e1eaff;
             font-size: 14px;
+            margin-bottom: 25px;
+            opacity: 0.9;
         }
-
-        .input {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.28);
-            color: white;
-            font-size: 15px;
-            margin-bottom: 12px;
-        }
-
-        .input::placeholder { color: #eaeaea; }
 
         .btn {
             width: 100%;
             padding: 12px;
+            background: #00c8ff;
             border: none;
             border-radius: 8px;
-            background: #00c8ff;
             font-size: 16px;
             font-weight: 600;
             color: #083344;
             cursor: pointer;
+            transition: 0.25s;
         }
 
-        .btn:active { background: #00a7d6; }
-
+        .btn:hover {
+            background: #00addb;
+        }
     </style>
+
 </head>
 <body>
 
 <div class="login-box">
-    <img src="aca.jpg" alt="Foto Admin">
+    <img src="aca.jpg" alt="foto admin">
 
     <h2>Login Admin</h2>
-    <p class="subtitle">Username: <b>admin</b> (otomatis)</p>
+    <p class="subtitle">Klik tombol untuk masuk</p>
 
-    <input class="input" type="password" id="pass" placeholder="Password">
-
-    <button class="btn" onclick="login()">Masuk</button>
+    <!-- tombol langsung masuk tanpa password -->
+    <button class="btn" onclick="login()">Masuk Sekarang</button>
 </div>
 
 <script>
 function login() {
-    let password = document.getElementById("pass").value;
-
-    if (password === "1234") {
-        window.location.href = "admin.html";
-    } else {
-        alert("Password salah!");
-    }
+    window.location.href = "admin.html"; // langsung masuk
 }
 </script>
 
