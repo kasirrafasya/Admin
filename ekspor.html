@@ -18,7 +18,10 @@ document.addEventListener("keydown", e => {
 });
 </script>
     <style>
-        :root {
+       /* =============================
+   THEME & ROOT VARIABLES
+   ============================= */
+:root {
     --primary: #0066ff;
     --secondary: #00c853;
     --danger: #ff3b30;
@@ -28,6 +31,9 @@ document.addEventListener("keydown", e => {
     --radius: 14px;
 }
 
+/* =============================
+   BODY
+   ============================= */
 body {
     font-family: 'Poppins', sans-serif;
     background: var(--bg-soft);
@@ -37,13 +43,15 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* MAIN CONTAINER */
+/* MAIN WRAPPER */
 .container {
     max-width: 1100px;
     margin: auto;
 }
 
-/* PANEL */
+/* =============================
+   PANEL WRAPPER
+   ============================= */
 .panel {
     background: white;
     padding: 25px;
@@ -51,7 +59,9 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-/* TITLE */
+/* =============================
+   TITLES
+   ============================= */
 h2 {
     margin: 0 0 18px 0;
     padding-bottom: 8px;
@@ -61,22 +71,9 @@ h2 {
     color: var(--primary);
 }
 
-/* FILTER AREA */
-.filter-controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding: 10px 0;
-}
-
-.filter-controls input {
-    padding: 10px 12px;
-    border-radius: var(--radius);
-    border: 1px solid #d7dbe0;
-    flex: 1;
-}
-
-/* BUTTONS */
+/* =============================
+   BUTTONS BASE
+   ============================= */
 .btn {
     padding: 10px 18px;
     border-radius: var(--radius);
@@ -91,10 +88,12 @@ h2 {
 .btn-primary:hover { background: #004fe0; }
 
 .btn-warning { background: var(--warning); }
-.btn-warning:hover { background: #f0b000; }
+.btn-warning:hover { background: #e0a800; }
 
 .btn-success { background: var(--secondary); color:#fff; }
+
 .btn-danger { background: var(--danger); color:#fff; }
+.btn-danger:hover { background: #e22a22; }
 
 .btn-back {
     background: #6b7280;
@@ -106,7 +105,36 @@ h2 {
 }
 .btn-back:hover { background:#4b5563; }
 
-/* TABLE */
+a {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+/* =============================
+   FILTER SECTION
+   ============================= */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+}
+
+.filter-controls label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.filter-controls input {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #d7dbe0;
+    flex: 1;
+}
+
+/* =============================
+   TABLE
+   ============================= */
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -120,17 +148,22 @@ h2 {
     background: #f7f9fc;
 }
 
-.data-table th, .data-table td {
+.data-table th,
+.data-table td {
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
     font-size: 0.9rem;
+    word-wrap: break-word;
+    white-space: normal;
 }
 
 .data-table tr:hover {
     background-color: #f5f7ff;
 }
 
-/* SUMMARY */
+/* =============================
+   SUMMARY ROWS
+   ============================= */
 .summary-row {
     margin-top: 12px;
     padding: 12px;
@@ -156,7 +189,9 @@ h2 {
     color: var(--secondary);
 }
 
-/* ALERT LOCAL STORAGE */
+/* =============================
+   ALERT LOCAL STORAGE
+   ============================= */
 .local-storage-alert {
     padding: 12px 15px;
     background: #d1ecf1;
@@ -166,43 +201,97 @@ h2 {
     border: 1px solid #bee5eb;
 }
 
-/* MOBILE MODE */
+/* =============================
+   MOBILE MODE SUPER RESPONSIVE
+   ============================= */
 @media (max-width: 600px) {
 
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 0;
+    }
+
     .panel {
-        padding: 18px;
+        padding: 15px;
+        border-radius: 12px;
     }
 
     h2 {
-        font-size: 1.2rem;
+        font-size: 1.1rem !important;
+        margin-bottom: 12px;
     }
 
-    .btn {
-        width: 100%;
-        margin-top: 6px;
+    /* FILTER RAPI */
+    .filter-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-controls label {
+        font-size: 0.85rem;
+        margin-top: 5px;
     }
 
     .filter-controls input {
-        flex: 100%;
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px;
     }
 
-    .data-table th, .data-table td {
-        padding: 10px 6px;
-        font-size: 0.8rem;
+    /* BUTTON FULL WIDTH */
+    .btn {
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px;
+        font-size: 0.85rem;
     }
 
+    /* TABLE FIX – ANTI MELEBAR */
+    .data-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 10px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 7px 6px;
+        font-size: 0.75rem;
+    }
+
+    .data-table th:first-child,
+    .data-table td:first-child {
+        width: 32px;
+        text-align: center;
+    }
+
+    /* SUMMARY */
+    .summary-row,
+    .expense-row {
+        font-size: 0.85rem;
+        padding: 10px;
+    }
+
+    /* GRAND TOTAL */
     .grand-total {
-    margin-top: 20px;
-    font-size: 1.4rem;
-    font-weight: 800;
-    text-align: right;
-    color: var(--secondary) !important; 
+        font-size: 1.1rem !important;
+        margin-top: 18px;
+    }
+
+    /* BUTTON BACK */
+    .btn-back {
+        width: 100%;
+        text-align: center;
+        padding: 10px 12px;
+        margin-bottom: 12px;
     }
 }
-a {
-    text-decoration: none !important;
-    color: inherit;
-}
+
 
 
     </style>
@@ -210,7 +299,7 @@ a {
 <body>
 
 <div class="container">
-    <a href="Admin.html" class="btn-back">Kembali ke Admin</a>
+    <a href="admin.html" class="btn-back">Kembali ke Admin</a>
 
     <div id="alert-local-storage" class="local-storage-alert" style="display:none;">
         Data transaksi terakhir berhasil dimuat. Catatan: <span id="deskripsi-catatan"></span>
@@ -515,3 +604,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
 </body>
 </html>
+
