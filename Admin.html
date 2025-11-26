@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Panel Kontrol & Stok</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("selectstart", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && ["u","U","c","C","x","X","s","S","a","A"].includes(e.key)) ||
+    (e.ctrlKey && e.shiftKey && ["I","i","J","j"].includes(e.key))
+  ) e.preventDefault();
+});
+</script>
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #f4f6fc;
+    font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 22px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+}
+
+table thead {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+    color: white;
+}
+
+table th, table td {
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+table tbody tr:hover {
+    background: #f3f4f6;
+}
+
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    box-shadow: 0 4px 12px rgba(29,78,216,0.35);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+}
+
+a {
+    text-decoration: none !important;
+}
+
+@media (max-width: 600px) {
+    .limit-5 {
+        max-height: 240px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 12px;
+    }
+    .limit-5::-webkit-scrollbar { width: 5px; }
+    .limit-5::-webkit-scrollbar-thumb {
+        background: #b6b6b6;
+        border-radius: 10px;
+    }
+    h1 { font-size: 20px; }
+    .card { padding: 16px; }
+    table th, table td { padding: 10px; font-size: 12px; }
+    .btn { padding: 6px 10px; font-size: 12px; }
+}
+.logout-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    padding: 10px 16px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+    transition: 0.25s;
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    transform: translateY(-2px);
+}
+
+</style>
+
+</head>
+<body>
+    <!-- Tombol Logout Kanan Atas -->
+<a href="index.html" class="logout-btn">Keluar</a>
+
+
+<div class="container">
+    <h1>📊 Panel Admin & Manajemen Stok</h1>
+
+    <!-- Dashboard -->
+    <div class="card">
+        <div class="flex-between">
+            <h2>Total Penjualan</h2>
+            <a href="ekspor.html" class="btn btn-primary">📄 Lihat & Ekspor</a>
+        </div>
+        <p id="total-penjualan">Rp 0</p>
+    </div>
+
+    <div class="card">
+        <div class="flex-between">
+            <h2>Total Pengeluaran</h2>
+        </div>
+        <p id="total-pengeluaran">Rp 0</p>
+    </div>
+
+    <div class="card">
+        <div class="flex-between">
+            <h2>Saldo Bersih</h2>
+        </div>
+        <p id="saldo-bersih">Rp 0</p>
+    </div>
+
+    <!-- Stok -->
+    <div class="card">
+        <div class="flex-between">
+            <h2>📦 Daftar Produk & Stok</h2>
+            <input type="text" id="searchStok" placeholder="Cari nama / kategori..." style="padding: 8px 12px; border-radius: 10px; border: 1px solid #d1d5db;">
+        </div>
+
+        <div class="table-container limit-5">
+            <table id="tabel-stok">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga</th>
+                        <th>Stok Saat Ini</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Penjualan -->
+    <div class="card">
+        <h2>📜 Riwayat Penjualan</h2>
+        <div class="table-container limit-5">
+            <table id="tabel-penjualan">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Id Kasir</th>
+                        <th>Deskripsi</th>
+                        <th>Total Bayar</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pengeluaran -->
+    <div class="card">
+        <h2>💰 Riwayat Pengeluaran</h2>
+        <div class="table-container limit-5">
+            <table id="tabel-pengeluaran">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Deskripsi</th>
+                        <th>Jumlah</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBN7iZX6CNHMEENgsFoS8VHhguRreE-xRs",
+    authDomain: "kasirku-1d33c.firebaseapp.com",
+    databaseURL: "https://kasirku-1d33c-default-rtdb.firebaseio.com/",
+    projectId: "kasirku-1d33c",
+    storageBucket: "kasirku-1d33c.appspot.com",
+    messagingSenderId: "440756410882",
+    appId: "1:440756410882:web:674a56658a0f5241d0651b",
+    measurementId: "G-D7C4321WB4"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function formatRupiah(x){ return 'Rp'+Math.abs(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
+function formatTanggal(iso){
+    const d=new Date(iso);
+    return d.toLocaleDateString('id-ID',{year:'numeric',month:'short',day:'numeric'});
+}
+
+// Load Stok + Tombol Edit
+db.ref('Produk').on('value', snapshot=>{
+    const data = snapshot.val();
+    const tbody = document.querySelector('#tabel-stok tbody');
+    tbody.innerHTML='';
+    if(data){
+        Object.entries(data).forEach(([key,item])=>{
+            const row = tbody.insertRow();
+            row.insertCell().textContent = item.nama;
+            row.insertCell().textContent = item.kategori;
+            row.insertCell().textContent = formatRupiah(item.harga_satuan);
+            row.insertCell().textContent = item.stok_saat_ini || 0;
+            const aksi = row.insertCell();
+            aksi.innerHTML = `<button class="btn btn-edit" onclick="window.location.href='crud.html?id=${key}'">✏️ Edit</button>`;
+        });
+    }
+});
+
+// Search
+document.getElementById('searchStok').addEventListener('input', function() {
+    const filter = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#tabel-stok tbody tr');
+    rows.forEach(row=>{
+        const nama=row.cells[0].textContent.toLowerCase();
+        const kategori=row.cells[1].textContent.toLowerCase();
+        row.style.display = (nama.includes(filter)||kategori.includes(filter))?"":"none";
+    });
+});
+
+// Penjualan
+let totalPenjualan=0;
+db.ref('Transaksi').on('value', snapshot=>{
+    const data = snapshot.val();
+    const tbody = document.querySelector('#tabel-penjualan tbody');
+    tbody.innerHTML='';
+    totalPenjualan=0;
+    if(data){
+        Object.values(data).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))
+        .forEach(trans=>{
+            const totalBayar = trans.total_bayar || 0;
+            const deskripsi = trans.catatan_transaksi || 'NOTHING';
+            totalPenjualan += totalBayar;
+            const row = tbody.insertRow();
+            row.insertCell().textContent = formatTanggal(trans.timestamp);
+            row.insertCell().textContent = trans.id_kasir || 'NOTHING';
+            row.insertCell().textContent = deskripsi;
+            row.insertCell().textContent = formatRupiah(totalBayar);
+        });
+    }
+    document.getElementById('total-penjualan').textContent = formatRupiah(totalPenjualan);
+    updateSaldoBersih();
+});
+
+// Pengeluaran
+let totalPengeluaran=0;
+db.ref('Pengeluaran').on('value', snapshot=>{
+    const data = snapshot.val();
+    const tbody = document.querySelector('#tabel-pengeluaran tbody');
+    tbody.innerHTML='';
+    totalPengeluaran=0;
+    if(data){
+        Object.values(data).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))
+        .forEach(exp=>{
+            totalPengeluaran += exp.jumlah;
+            const row = tbody.insertRow();
+            row.insertCell().textContent = formatTanggal(exp.timestamp);
+            row.insertCell().textContent = exp.deskripsi;
+            row.insertCell().textContent = formatRupiah(exp.jumlah);
+        });
+    }
+    document.getElementById('total-pengeluaran').textContent = formatRupiah(totalPengeluaran);
+    updateSaldoBersih();
+});
+
+// Saldo Bersih
+function updateSaldoBersih(){
+    const saldo = totalPenjualan - totalPengeluaran;
+    document.getElementById('saldo-bersih').textContent = formatRupiah(saldo);
+}
+</script>
+
+</body>
+</html>

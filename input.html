@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Produk Baru | Admin Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("selectstart", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && ["u","U","c","C","x","X","s","S","a","A"].includes(e.key)) ||
+    (e.ctrlKey && e.shiftKey && ["I","i","J","j"].includes(e.key))
+  ) e.preventDefault();
+});
+</script>
+    <style>
+        /* --- GAYA GLOBAL & FONT --- */
+        :root {
+            --primary-color: #007BFF; /* Biru */
+            --secondary-color: #28a745; /* Hijau */
+            --warning-color: #ffc107; /* Kuning */
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --border-radius: 8px;
+            --danger-color: #dc3545; /* Merah */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- HEADING & FORM DASAR --- */
+        h2 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        h3 {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #d89700;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        /* --- SECTION DISKON BARU & DINAMIS --- */
+        .diskon-section {
+            background-color: #fffae6; 
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: var(--border-radius);
+            border: 2px dashed var(--warning-color);
+        }
+        
+        .diskon-level-header {
+            display: grid;
+            grid-template-columns: 0.1fr 1fr 1fr 1fr 0.1fr; 
+            gap: 15px;
+            font-weight: 700; 
+            color: var(--text-dark); 
+            border-bottom: 2px solid #ffc107;
+            padding-bottom: 5px;
+        }
+        
+        .diskon-level {
+            display: grid;
+            /* 5 Kolom: No | Min Qty | Harga Satuan Khusus | Harga Total Khusus | Hapus */
+            grid-template-columns: 0.1fr 1fr 1fr 1fr 0.1fr; 
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #ffeb8f;
+        }
+        
+        .diskon-level-no {
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            min-width: 30px; 
+        }
+
+        .diskon-level:last-child {
+             border-bottom: none;
+        }
+        
+        .btn-tambah-diskon {
+            padding: 10px 15px;
+            background-color: var(--warning-color);
+            color: var(--text-dark);
+            font-weight: 600;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .btn-hapus-diskon {
+            padding: 8px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            line-height: 1;
+        }
+        
+        .note-diskon {
+            font-size: 0.9em;
+            color: var(--text-dark);
+            margin-top: 10px;
+            padding: 10px;
+            border-left: 3px solid var(--warning-color);
+            background-color: #fff8e1;
+        }
+        
+        /* --- TOMBOL NAVIGASI & SUBMIT (Warna Berbeda) --- */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 15px;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex: 1; 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tombol Simpan (Hijau) */
+        .btn-submit {
+            background-color: var(--secondary-color); 
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
+        }
+        .btn-submit:hover {
+            background-color: #1e7e34;
+        }
+
+        /* Tombol Navigasi CRUD (Biru) */
+        .btn-nav-crud {
+            background-color: var(--primary-color); 
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
+        }
+        .btn-nav-crud:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Tombol Kembali ke Admin (Abu-abu/Netral) */
+        .btn-nav-admin {
+            background-color: #6c757d; 
+            box-shadow: 0 4px 10px rgba(108, 117, 125, 0.4);
+        }
+        .btn-nav-admin:hover {
+            background-color: #5a6268;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* --- MEDIA QUERIES (RESPONSIVE HP) --- */
+        @media (max-width: 768px) {
+            .container { padding: 15px; margin: 15px auto; max-width: 100%; }
+            
+            /* Sembunyikan Header Kolom di HP */
+            .diskon-level-header {
+                display: none;
+            }
+            
+            /* Tampilan Diskon untuk HP: Mengubah grid menjadi stack */
+            .diskon-level { 
+                grid-template-columns: 1fr;
+                gap: 5px;
+                padding: 15px;
+                background-color: #fff;
+                border: 1px solid #f0f0f0;
+                border-radius: var(--border-radius);
+                margin-bottom: 10px;
+            }
+            
+            .diskon-level-no {
+                text-align: left;
+                margin-bottom: 5px;
+                border-bottom: 2px solid var(--primary-color);
+                padding-bottom: 5px;
+            }
+            
+            .diskon-level > div:last-child {
+                text-align: right;
+                margin-top: 10px;
+            }
+            
+            .form-group label {
+                font-size: 0.9em;
+            }
+
+            .button-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📦 Input Data Produk Baru</h2>
+        
+        <form id="produkForm">
+            <div class="form-group">
+                <label for="input-nama">Nama Barang</label>
+                <input type="text" id="input-nama" placeholder="Cth: Indomie Goreng Jumbo" required>
+            </div>
+            
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="input-kategori">Kategori</label>
+                    <select id="input-kategori" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Makanan">Makanan</option>
+                        <option value="Minuman">Minuman</option>
+                        <option value="Perlengkapan">Perlengkapan</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="flex: 1;">
+                    <label for="input-stok">Stok Awal</label>
+                    <input type="number" id="input-stok" placeholder="Cth: 100" min="0" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="input-harga">Harga Satuan Asli (Rp)</label>
+                <input type="number" id="input-harga" placeholder="10000" min="1" required>
+            </div>
+            <div class="diskon-section">
+                <h3>🏷️ Aturan Diskon Berjenjang (Dinamis)</h3>
+                
+                <div class="diskon-level-header">
+                    <div style="text-align: center;">No.</div>
+                    <div>Minimal Qty</div>
+                    <div>Harga Satuan Khusus (Rp)</div>
+                    <div>Harga **Total** Khusus (Rp)</div>
+                    <div>Aksi</div>
+                </div>
+                
+                <div id="diskon-container">
+                    </div>
+                
+                <button type="button" class="btn-tambah-diskon" onclick="addDiskonLevel()">➕ Tambah Level Diskon</button>
+
+                <div class="note-diskon">
+                    **Penting:** Jika Anda mengisi **Harga Satuan Khusus** DAN **Harga Total Khusus**, maka **Harga Total Khusus** yang akan digunakan. **Min Qty Level N** harus **lebih besar** dari Min Qty Level sebelumnya.
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-submit">✅ Simpan Produk</button>
+                <button type="button" onclick="goToCrudPage()" class="btn-nav-crud">📋 Kelola Data (CRUD)</button>
+                <button type="button" onclick="goToAdminPage()" class="btn-nav-admin">🔙 Kembali ke Admin</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script>
+        // --- KONFIGURASI FIREBASE ANDA ---
+        // --- KONFIGURASI FIREBASE BARU ---
+const firebaseConfig = {
+    apiKey: "AIzaSyBN7iZX6CNHMEENgsFoS8VHhguRreE-xRs",
+    authDomain: "kasirku-1d33c.firebaseapp.com",
+    databaseURL: "https://kasirku-1d33c-default-rtdb.firebaseio.com/",
+    projectId: "kasirku-1d33c",
+    storageBucket: "kasirku-1d33c.appspot.com",
+    messagingSenderId: "440756410882",
+    appId: "1:440756410882:web:674a56658a0f5241d0651b",
+    measurementId: "G-D7C4321WB4"
+};
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const produkRef = database.ref('Produk'); // Path ke data produk
+
+        const diskonContainer = document.getElementById('diskon-container');
+        let diskonCounter = 0; 
+
+        /**
+         * Menambahkan satu baris input diskon baru secara dinamis.
+         */
+        function addDiskonLevel() {
+            diskonCounter++;
+            
+            const newLevel = document.createElement('div');
+            newLevel.className = 'diskon-level';
+            newLevel.setAttribute('data-level', diskonCounter);
+            
+            const levelNum = diskonCounter;
+
+            // Kolom 1: Nomor Level
+            const colNo = `<div class="diskon-level-no">Level ${levelNum}.</div>`;
+            
+            // Kolom 2: Minimal Qty
+            const colQty = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Min Qty</label>
+                    <input type="number" name="min_qty_${levelNum}" placeholder="Min Qty (Cth: 5)" min="2" class="diskon-min-qty" required>
+                </div>
+            `;
+            
+            // Kolom 3: Harga Satuan Khusus
+            const colHargaSatuan = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Harga Satuan Khusus (Rp)</label>
+                    <input type="number" name="harga_diskon_${levelNum}" placeholder="Harga Satuan (Cth: 9700)" min="1" class="diskon-harga-satuan">
+                </div>
+            `;
+            
+            // Kolom 4: Harga Total Khusus
+            const colHargaTotal = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Harga **Total** Khusus (Rp)</label>
+                    <input type="number" name="harga_total_${levelNum}" placeholder="Harga Total (Cth: 48500)" min="1" class="diskon-harga-total">
+                </div>
+            `;
+            
+            // Kolom 5: Tombol Hapus
+            const colHapus = `
+                 <div>
+                    <button type="button" class="btn-hapus-diskon" onclick="removeDiskonLevel(this)">🗑️ Hapus</button>
+                 </div>
+            `;
+            
+            newLevel.innerHTML = colNo + colQty + colHargaSatuan + colHargaTotal + colHapus;
+            diskonContainer.appendChild(newLevel);
+            
+            updateDiskonNumbers();
+        }
+
+        /**
+         * Menghapus baris diskon dari DOM.
+         */
+        function removeDiskonLevel(button) {
+            const levelDiv = button.closest('.diskon-level');
+            levelDiv.remove();
+            diskonCounter--;
+            updateDiskonNumbers();
+        }
+
+        /**
+         * Mengurutkan ulang dan memperbarui nomor level diskon.
+         */
+        function updateDiskonNumbers() {
+            const levels = diskonContainer.querySelectorAll('.diskon-level');
+            levels.forEach((level, index) => {
+                const newNumber = index + 1;
+                // Update nomor yang terlihat
+                level.querySelector('.diskon-level-no').textContent = `Level ${newNumber}.`;
+                // Update atribut data
+                level.setAttribute('data-level', newNumber);
+            });
+            
+            // Penyesuaian tampilan header di HP
+            const headerRow = document.querySelector('.diskon-section > .diskon-level-header');
+            if(window.innerWidth <= 768) {
+                if (levels.length > 0) {
+                     headerRow.style.display = 'none'; // Sembunyikan judul kolom di HP
+                }
+            } else {
+                headerRow.style.display = 'grid';
+            }
+        }
+        
+        // Tambahkan satu level diskon secara default saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+             addDiskonLevel();
+             updateDiskonNumbers();
+        });
+        
+        // Tambahkan event listener untuk penyesuaian tampilan saat resize
+        window.addEventListener('resize', updateDiskonNumbers);
+
+
+        function simpanProdukBaru(event) {
+            if(event) event.preventDefault(); 
+            
+            // 1. Ambil Data Dasar
+            const nama = document.getElementById('input-nama').value.trim();
+            const kategori = document.getElementById('input-kategori').value;
+            const harga = parseInt(document.getElementById('input-harga').value);
+            const stok = parseInt(document.getElementById('input-stok').value);
+
+            if (!nama || !kategori || isNaN(harga) || isNaN(stok) || harga <= 0 || stok < 0) {
+                alert("❌ Error: Mohon isi Nama, Kategori, Harga (> 0), dan Stok (>= 0) dengan benar.");
+                return;
+            }
+
+            // 2. Ambil dan Validasi Diskon Berjenjang (Dinamis)
+            const diskonLevels = [];
+            const diskonDivs = diskonContainer.querySelectorAll('.diskon-level');
+            
+            let lastMinQty = 1; 
+            let diskonError = false;
+
+            for (let i = 0; i < diskonDivs.length; i++) {
+                const levelDiv = diskonDivs[i];
+                const levelNum = i + 1;
+                
+                const minQtyEl = levelDiv.querySelector('.diskon-min-qty');
+                const hargaSatuanEl = levelDiv.querySelector('.diskon-harga-satuan');
+                const hargaTotalEl = levelDiv.querySelector('.diskon-harga-total');
+
+                const minQty = parseInt(minQtyEl.value);
+                const hargaSatuan = parseInt(hargaSatuanEl.value);
+                const hargaTotal = parseInt(hargaTotalEl.value);
+
+                // Cek apakah minimal Qty diisi. Ini wajib.
+                if (isNaN(minQty) || minQty <= 1) {
+                    alert(`❌ Error Diskon Level ${levelNum}: Minimal Qty harus diisi dan lebih besar dari 1.`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // Cek apakah ada satu pun harga yang diisi
+                const isHargaSatuanValid = !isNaN(hargaSatuan) && hargaSatuan > 0;
+                const isHargaTotalValid = !isNaN(hargaTotal) && hargaTotal > 0;
+                
+                if (!isHargaSatuanValid && !isHargaTotalValid) {
+                    alert(`❌ Error Diskon Level ${levelNum}: Anda harus mengisi setidaknya Harga Satuan Khusus atau Harga Total Khusus.`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // VALIDASI 1: Qty minimal harus lebih besar dari Qty level sebelumnya
+                if (minQty <= lastMinQty) {
+                     alert(`❌ Error Diskon Level ${levelNum}: Minimal Qty (${minQty}) harus lebih besar dari Qty level sebelumnya (${lastMinQty}).`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // Tentukan tipe diskon dan validasi harga
+                let diskonData = { minimal_qty: minQty };
+                
+                if (isHargaTotalValid) {
+                    // PRIORITAS 1: Harga Total Khusus
+                    if (hargaTotal >= (harga * minQty)) {
+                        alert(`❌ Error Diskon Level ${levelNum}: Harga Total Khusus (${hargaTotal} Rp) harus lebih murah dari harga normal (${harga * minQty} Rp) untuk ${minQty} unit.`);
+                        diskonError = true;
+                        break;
+                    }
+                    diskonData.tipe = 'total';
+                    diskonData.harga_total_khusus = hargaTotal;
+                    
+                } else if (isHargaSatuanValid) {
+                    // PRIORITAS 2: Harga Satuan Khusus
+                    if (hargaSatuan >= harga) {
+                        alert(`❌ Error Diskon Level ${levelNum}: Harga Satuan Khusus (${hargaSatuan} Rp) harus lebih murah dari Harga Satuan Asli (${harga} Rp).`);
+                        diskonError = true;
+                        break;
+                    }
+                    diskonData.tipe = 'satuan';
+                    diskonData.harga_satuan_khusus = hargaSatuan;
+                }
+                
+                // Simpan data diskon yang telah divalidasi
+                diskonLevels.push(diskonData);
+                
+                // Perbarui Qty minimal level sebelumnya
+                lastMinQty = minQty;
+            }
+
+            if (diskonError) {
+                return; // Batalkan simpan jika ada error diskon
+            }
+
+            // 3. Persiapkan Data Produk untuk Firebase
+            const produkData = {
+                nama: nama,
+                kategori: kategori,
+                harga_satuan: harga,
+                stok_saat_ini: stok,
+                aturan_diskon_berjenjang: diskonLevels.length > 0 ? diskonLevels : null, 
+                dibuat_pada: new Date().toISOString()
+            };
+            
+            // 4. Simpan ke Firebase (CREATE)
+            produkRef.push(produkData)
+                .then(() => {
+                    let msg = `✅ Sukses! Produk "${nama}" berhasil disimpan!`;
+                    if (diskonLevels.length > 0) {
+                        msg += ` Diskon berjenjang (${diskonLevels.length} level) berhasil dicatat.`;
+                    } else {
+                        msg += ` (Tanpa diskon berjenjang).`;
+                    }
+                    alert(msg);
+                    
+                    // Reset form & diskon dinamis
+                    document.getElementById('produkForm').reset();
+                    document.getElementById('input-kategori').value = ''; 
+                    diskonContainer.innerHTML = ''; 
+                    diskonCounter = 0;
+                    addDiskonLevel(); 
+                })
+                .catch(error => {
+                    alert("❌ Gagal menyimpan produk. Cek koneksi dan aturan Firebase: " + error.message);
+                });
+        }
+        
+        // Mencegah form submit default agar fungsi simpanProdukBaru() berjalan
+        document.getElementById('produkForm').addEventListener('submit', simpanProdukBaru);
+
+        // --- FUNGSI NAVIGASI ---
+        function goToCrudPage() {
+            window.location.href = "crud.html"; 
+        }
+        
+        function goToAdminPage() {
+            window.location.href = "admin.html"; 
+        }
+    </script>
+</body>
+</html>

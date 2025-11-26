@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ringkasan Keuangan Harian</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("selectstart", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && ["u","U","c","C","x","X","s","S","a","A"].includes(e.key)) ||
+    (e.ctrlKey && e.shiftKey && ["I","i","J","j"].includes(e.key))
+  ) e.preventDefault();
+});
+</script>
+    <style>
+        :root {
+    --primary: #0066ff;
+    --secondary: #00c853;
+    --danger: #ff3b30;
+    --warning: #ffca28;
+    --text-dark: #1c1c1e;
+    --bg-soft: #f2f4f7;
+    --radius: 14px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-soft);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-dark);
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* MAIN CONTAINER */
+.container {
+    max-width: 1100px;
+    margin: auto;
+}
+
+/* PANEL */
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* TITLE */
+h2 {
+    margin: 0 0 18px 0;
+    padding-bottom: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-bottom: 3px solid var(--primary);
+    color: var(--primary);
+}
+
+/* FILTER AREA */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 0;
+}
+
+.filter-controls input {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #d7dbe0;
+    flex: 1;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .2s;
+    font-size: 0.9rem;
+}
+
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #004fe0; }
+
+.btn-warning { background: var(--warning); }
+.btn-warning:hover { background: #f0b000; }
+
+.btn-success { background: var(--secondary); color:#fff; }
+.btn-danger { background: var(--danger); color:#fff; }
+
+.btn-back {
+    background: #6b7280;
+    color: white;
+    display: inline-block;
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+}
+.btn-back:hover { background:#4b5563; }
+
+/* TABLE */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    background: white;
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.data-table thead {
+    background: #f7f9fc;
+}
+
+.data-table th, .data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+.data-table tr:hover {
+    background-color: #f5f7ff;
+}
+
+/* SUMMARY */
+.summary-row {
+    margin-top: 12px;
+    padding: 12px;
+    background: #eaf3ff;
+    border-radius: var(--radius);
+    font-weight: 700;
+}
+
+.expense-row {
+    margin-top: 12px;
+    padding: 12px;
+    background: #ffeaea;
+    color: var(--danger);
+    border-radius: var(--radius);
+    font-weight: 700;
+}
+
+.grand-total {
+    margin-top: 20px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: right;
+    color: var(--secondary);
+}
+
+/* ALERT LOCAL STORAGE */
+.local-storage-alert {
+    padding: 12px 15px;
+    background: #d1ecf1;
+    color: #0c5460;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    border: 1px solid #bee5eb;
+}
+
+/* MOBILE MODE */
+@media (max-width: 600px) {
+
+    .panel {
+        padding: 18px;
+    }
+
+    h2 {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-top: 6px;
+    }
+
+    .filter-controls input {
+        flex: 100%;
+    }
+
+    .data-table th, .data-table td {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+
+    .grand-total {
+    margin-top: 20px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: right;
+    color: var(--secondary) !important; 
+    }
+}
+a {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="Admin.html" class="btn-back">Kembali ke Admin</a>
+
+    <div id="alert-local-storage" class="local-storage-alert" style="display:none;">
+        Data transaksi terakhir berhasil dimuat. Catatan: <span id="deskripsi-catatan"></span>
+    </div>
+
+    <div class="panel">
+        <h2>📊 Ringkasan Keuangan Harian</h2>
+
+        <div class="filter-controls">
+            <label>Tanggal:</label>
+            <input type="date" id="date-filter">
+
+            <label>ID Kasir:</label>
+            <input type="text" id="cashier-id-filter" placeholder="ID Kasir (Opsional)">
+
+            <button class="btn btn-primary" onclick="loadAllData()">Terapkan</button>
+            <button class="btn btn-warning" onclick="resetFilter()">Reset</button>
+        </div>
+
+        <button class="btn btn-success" onclick="exportToCSV()" style="margin-bottom:20px;">⬇️ Unduh CSV</button>
+
+        <!-- PEMASUKAN -->
+        <h2 style="border-bottom-color: var(--secondary-color); color: var(--secondary-color);">💰 Pemasukan</h2>
+        <button class="btn btn-danger" onclick="deleteSelectedIncome()">Hapus Pemasukan Terpilih</button>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="checkAllIncome" onclick="toggleAllIncome()"></th>
+                    <th>Waktu</th>
+                    <th>Tanggal</th>
+                    <th>ID Kasir</th>
+                    <th>Deskripsi</th>
+                    <th style="text-align:right;">Jumlah (Rp)</th>
+                </tr>
+            </thead>
+            <tbody id="pemasukan-body">
+                <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        <div id="total-pemasukan" class="summary-row">Total: Rp 0</div>
+
+        <!-- PENGELUARAN -->
+        <h2 style="border-bottom-color: var(--danger-color); color: var(--danger-color);">💸 Pengeluaran</h2>
+        <button class="btn btn-danger" onclick="deleteSelectedExpense()">Hapus Pengeluaran Terpilih</button>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="checkAllExpense" onclick="toggleAllExpense()"></th>
+                    <th>Waktu</th>
+                    <th>Tanggal</th>
+                    <th>ID Kasir</th>
+                    <th>Deskripsi</th>
+                    <th style="text-align:right;">Jumlah (Rp)</th>
+                </tr>
+            </thead>
+            <tbody id="pengeluaran-body">
+                <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+        <div id="total-pengeluaran" class="expense-row">Total: Rp 0</div>
+
+        <div id="grand-total" class="grand-total">Saldo Bersih: Rp 0</div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+<script>
+// --- KONFIGURASI FIREBASE ---
+const firebaseConfig = {
+    apiKey: "AIzaSyBN7iZX6CNHMEENgsFoS8VHhguRreE-xRs",
+    authDomain: "kasirku-1d33c.firebaseapp.com",
+    databaseURL: "https://kasirku-1d33c-default-rtdb.firebaseio.com/",
+    projectId: "kasirku-1d33c",
+    storageBucket: "kasirku-1d33c.appspot.com",
+    messagingSenderId: "440756410882",
+    appId: "1:440756410882:web:674a56658a0f5241d0651b",
+    measurementId: "G-D7C4321WB4"
+};
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const transaksiRef = database.ref('Transaksi');
+const pengeluaranRef = database.ref('Pengeluaran');
+
+// --- DOM ELEMENTS ---
+const pemasukanBody = document.getElementById('pemasukan-body');
+const pengeluaranBody = document.getElementById('pengeluaran-body');
+const dateFilterElement = document.getElementById('date-filter');
+const cashierIdFilterElement = document.getElementById('cashier-id-filter');
+const totalPemasukanElement = document.getElementById('total-pemasukan');
+const totalPengeluaranElement = document.getElementById('total-pengeluaran');
+const grandTotalElement = document.getElementById('grand-total');
+const alertLocalStorage = document.getElementById('alert-local-storage');
+const deskripsiCatatanEl = document.getElementById('deskripsi-catatan');
+
+let pemasukanData = [];
+let pengeluaranData = [];
+
+// --- FORMAT ---
+function formatRupiah(num) {
+    if (!num) return "Rp 0";
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0
+    }).format(num);
+}
+function formatTimeOnly(t) {
+    return new Date(t).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+}
+function formatFullDate(t) {
+    return new Date(t).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+function getSelectedDate() { return dateFilterElement.value; }
+function getSelectedCashierId() { return cashierIdFilterElement.value.trim().toLowerCase(); }
+
+// --- RESET FILTER ---
+function resetFilter() {
+    dateFilterElement.value = "";
+    cashierIdFilterElement.value = "";
+    startRealtimeListener();
+}
+
+// --- PROCESS DATA ---
+function processData(snapshot, filterDate, filterKasir, tipe) {
+    const arr = [];
+    snapshot.forEach(snap => {
+        const d = snap.val();
+        const obj = {};
+        obj.key = snap.key;
+        if (tipe === "Transaksi") {
+            obj.waktu = d.timestamp;
+            obj.id_kasir = d.id_kasir || "NO ID";
+            obj.deskripsi = d.catatan_transaksi || `Trx #${snap.key}`;
+            obj.jumlah = d.total_bayar || 0;
+        } else {
+            obj.waktu = d.timestamp;
+            obj.id_kasir = d.id_kasir || "N/A";
+            obj.deskripsi = d.deskripsi || "-";
+            obj.jumlah = d.jumlah || 0;
+        }
+        const itemDate = obj.waktu ? new Date(obj.waktu).toISOString().slice(0,10) : "";
+        const passDate = filterDate === "" || itemDate === filterDate;
+        const passKasir = filterKasir === "" || obj.id_kasir.toLowerCase().includes(filterKasir);
+        if (passDate && passKasir) arr.push(obj);
+    });
+    return arr.reverse();
+}
+
+// --- DISPLAY PEMASUKAN ---
+function displayPemasukan(list) {
+    pemasukanBody.innerHTML = "";
+    if (list.length === 0) {
+        pemasukanBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada pemasukan.</td></tr>`;
+        totalPemasukanElement.textContent = "Total Pemasukan: Rp 0";
+        return;
+    }
+    let total = 0;
+    list.forEach(r => {
+        total += r.jumlah;
+        pemasukanBody.innerHTML += `
+            <tr>
+                <td><input type="checkbox" class="check-income" data-id="${r.key}"></td>
+                <td>${formatTimeOnly(r.waktu)}</td>
+                <td>${formatFullDate(r.waktu)}</td>
+                <td>${r.id_kasir}</td>
+                <td>${r.deskripsi}</td>
+                <td style="text-align:right;">${formatRupiah(r.jumlah)}</td>
+            </tr>
+        `;
+    });
+    totalPemasukanElement.textContent = `Total Pemasukan: ${formatRupiah(total)}`;
+}
+
+// --- DISPLAY PENGELUARAN ---
+function displayPengeluaran(list) {
+    pengeluaranBody.innerHTML = "";
+    if (list.length === 0) {
+        pengeluaranBody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Belum ada pengeluaran.</td></tr>`;
+        totalPengeluaranElement.textContent = "Total Pengeluaran: Rp 0";
+        return;
+    }
+    let total = 0;
+    list.forEach(r => {
+        total += r.jumlah;
+        pengeluaranBody.innerHTML += `
+            <tr>
+                <td><input type="checkbox" class="check-expense" data-id="${r.key}"></td>
+                <td>${formatTimeOnly(r.waktu)}</td>
+                <td>${formatFullDate(r.waktu)}</td>
+                <td>${r.id_kasir}</td>
+                <td>${r.deskripsi}</td>
+                <td style="text-align:right;">${formatRupiah(r.jumlah)}</td>
+            </tr>
+        `;
+    });
+    totalPengeluaranElement.textContent = `Total Pengeluaran: ${formatRupiah(total)}`;
+}
+
+// --- UPDATE SALDO ---
+function updateGrandTotal() {
+    const totalIncome = pemasukanData.reduce((s, i) => s + (i.jumlah || 0), 0);
+    const totalExpense = pengeluaranData.reduce((s, i) => s + (i.jumlah || 0), 0);
+    const saldo = totalIncome - totalExpense;
+    grandTotalElement.textContent = `Saldo Bersih: ${formatRupiah(saldo)}`;
+    grandTotalElement.style.color = saldo >= 0 ? "var(--secondary-color)" : "var(--danger-color)";
+}
+
+// --- REALTIME LISTENER ---
+function startRealtimeListener() {
+    const fDate = getSelectedDate();
+    const fKasir = getSelectedCashierId();
+
+    transaksiRef.off();
+    pengeluaranRef.off();
+
+    transaksiRef.on("value", snap => {
+        pemasukanData = processData(snap, fDate, fKasir, "Transaksi");
+        displayPemasukan(pemasukanData);
+        updateGrandTotal();
+    });
+
+    pengeluaranRef.on("value", snap => {
+        pengeluaranData = processData(snap, fDate, fKasir, "Pengeluaran");
+        displayPengeluaran(pengeluaranData);
+        updateGrandTotal();
+    });
+}
+
+// --- TERAPKAN FILTER ---
+function loadAllData() { startRealtimeListener(); }
+
+// --- EXPORT CSV ---
+function exportToCSV() {
+    const header = ["Tipe", "Waktu", "Tanggal", "ID Kasir", "Deskripsi", "Jumlah"];
+    let csv = header.join(",") + "\n";
+    pemasukanData.forEach(p => {
+        csv += ["Pemasukan", formatTimeOnly(p.waktu), formatFullDate(p.waktu), p.id_kasir, p.deskripsi.replace(/,/g," "), p.jumlah].join(",") + "\n";
+    });
+    pengeluaranData.forEach(p => {
+        csv += ["Pengeluaran", formatTimeOnly(p.waktu), formatFullDate(p.waktu), p.id_kasir, p.deskripsi.replace(/,/g," "), p.jumlah].join(",") + "\n";
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "LaporanKeuangan.csv";
+    link.click();
+}
+
+// --- LOCAL STORAGE ALERT ---
+function checkLocalStorageForTransaction() {
+    const trx = localStorage.getItem("transaksi_berhasil");
+    const catatan = localStorage.getItem("deskripsi_ekspor_catatan");
+    if (trx) {
+        alertLocalStorage.style.display = "block";
+        deskripsiCatatanEl.textContent = catatan || "Tanpa catatan.";
+        localStorage.removeItem("transaksi_berhasil");
+        localStorage.removeItem("deskripsi_ekspor_catatan");
+    }
+}
+
+// --- TOGGLE CHECKBOX ---
+function toggleAllIncome() {
+    const master = document.getElementById("checkAllIncome").checked;
+    document.querySelectorAll(".check-income").forEach(c => c.checked = master);
+}
+function toggleAllExpense() {
+    const master = document.getElementById("checkAllExpense").checked;
+    document.querySelectorAll(".check-expense").forEach(c => c.checked = master);
+}
+
+// --- DELETE WITH 2-STEP VERIFICATION ---
+function deleteSelectedIncome() {
+    const selected = document.querySelectorAll(".check-income:checked");
+    if (selected.length === 0) { alert("Pilih data pemasukan yang ingin dihapus."); return; }
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${selected.length} data pemasukan terpilih? Stok tidak akan berubah`)) return;
+    const verification = prompt("Ketik 'DELETE' untuk menghapus data ini:");
+    if (verification !== "DELETE") { alert("Verifikasi gagal. Data tidak dihapus."); return; }
+    selected.forEach(c => { database.ref("Transaksi/" + c.dataset.id).remove(); });
+    alert("Data pemasukan berhasil dihapus!");
+}
+function deleteSelectedExpense() {
+    const selected = document.querySelectorAll(".check-expense:checked");
+    if (selected.length === 0) { alert("Pilih data pengeluaran yang ingin dihapus."); return; }
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${selected.length} data pengeluaran terpilih?`)) return;
+    const verification = prompt("Ketik 'DELETE' untuk menghapus data ini:");
+    if (verification !== "DELETE") { alert("Verifikasi gagal. Data tidak dihapus."); return; }
+    selected.forEach(c => { database.ref("Pengeluaran/" + c.dataset.id).remove(); });
+    alert("Data pengeluaran berhasil dihapus!");
+}
+
+// --- INIT ---
+document.addEventListener("DOMContentLoaded", () => {
+    dateFilterElement.value = new Date().toISOString().slice(0,10);
+    startRealtimeListener();
+    checkLocalStorageForTransaction();
+});
+</script>
+
+</body>
+</html>

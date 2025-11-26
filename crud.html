@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Data Produk | Admin Panel CRUD</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("selectstart", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if (
+    e.key === "F12" ||
+    (e.ctrlKey && ["u","U","c","C","x","X","s","S","a","A"].includes(e.key)) ||
+    (e.ctrlKey && e.shiftKey && ["I","i","J","j"].includes(e.key))
+  ) e.preventDefault();
+});
+</script>
+    <style>
+        /* --- GAYA GLOBAL & FONT --- */
+        :root {
+            --primary-color: #007BFF; 
+            --secondary-color: #28a745; 
+            --warning-color: #ffc107; 
+            --danger-color: #dc3545; 
+            --info-color: #17a2b8; 
+            --background-light: #f4f7f6;
+            --text-dark: #343a40;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            padding: 20px;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- CONTAINER UTAMA --- */
+        .container {
+            max-width: 1200px; 
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        /* --- Tombol Navigasi Kustom --- */
+        .nav-button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap; 
+        }
+        
+        .btn-nav {
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-input { background-color: var(--secondary-color); }
+        .btn-input:hover { background-color: #1e7e34; }
+
+        .btn-admin { background-color: var(--info-color); }
+        .btn-admin:hover { background-color: #117a8b; }
+
+        /* --- FITUR SEARCH & FILTER --- */
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        #search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 2px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            max-width: 300px;
+        }
+
+        #kategori-filter {
+            padding: 10px 15px;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            background-color: white;
+            color: var(--text-dark);
+        }
+
+        /* --- TAMPILAN KARTU PRODUK --- */
+        .produk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding-top: 10px;
+        }
+
+        .produk-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .produk-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.3em;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+        
+        .card-info p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        
+        .card-info strong {
+            color: var(--primary-color);
+        }
+        
+        /* Tambah Stock Control */
+        .stock-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .btn-tambah-stok {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-tambah-stok:hover {
+            background-color: #1e7e34;
+        }
+        .btn-kurang-stok {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.btn-kurang-stok:hover {
+    background-color: #b21f2d;
+}
+
+
+        .card-diskon-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ced4da;
+        }
+
+        .card-diskon-section h4 {
+            font-size: 1em;
+            color: var(--warning-color);
+            margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+        
+        .diskon-item {
+            background-color: #fff8e1;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            border-left: 3px solid var(--warning-color);
+        }
+        
+        .card-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-grow: 1;
+        }
+        
+        .btn-edit { background-color: var(--warning-color); color: var(--text-dark); }
+        .btn-edit:hover { background-color: #e0a800; }
+        
+        .btn-delete { background-color: var(--danger-color); color: white; }
+        .btn-delete:hover { background-color: #bd2130; }
+
+        /* --- GAYA MODAL POP-UP EDIT --- */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; 
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(3px); 
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            animation: fadeInDown 0.3s; 
+            max-width: 750px; 
+            width: 90%; 
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            color: var(--text-dark); position: absolute; top: 15px; right: 25px;
+            font-size: 30px; font-weight: bold; cursor: pointer;
+        }
+        
+        .modal-content label { display: block; font-weight: 600; margin-top: 10px; margin-bottom: 5px; }
+        
+        .modal-content input[type="text"], 
+        .modal-content input[type="number"],
+        .modal-content button[type="submit"] {
+            width: 100%; margin-bottom: 15px; padding: 12px; box-sizing: border-box;
+            border-radius: 8px; border: 1px solid #ced4da; font-size: 1em;
+        }
+        
+        .modal-content button[type="submit"] {
+            background-color: var(--primary-color); color: white; font-weight: 600;
+            margin-top: 20px; transition: background-color 0.2s;
+        }
+        
+        .modal-content button[type="submit"]:hover { background-color: #0056b3; }
+        
+        /* --- GAYA DISKON DINAMIS DI MODAL (LAPTOP VIEW) --- */
+        .diskon-section-modal {
+            background-color: #fffae6; padding: 20px; margin-top: 20px;
+            border-radius: var(--border-radius); border: 2px dashed var(--warning-color);
+        }
+        
+        /* Tata letak grid untuk layar besar */
+        .diskon-level-header, .diskon-level-edit {
+            display: grid;
+            /* 5 Kolom: No | Min Qty | Harga Satuan Khusus | Harga Total Khusus | Hapus */
+            grid-template-columns: 0.1fr 1fr 1fr 1fr 0.1fr; 
+            gap: 15px;
+            align-items: center;
+        }
+
+        .diskon-level-header {
+            font-weight: 700; color: var(--text-dark); 
+            border-bottom: 2px solid #ffc107; padding-bottom: 5px;
+        }
+        
+        .diskon-level-edit {
+            margin-bottom: 10px; padding: 10px 0; border-bottom: 1px solid #ffeb8f;
+        }
+        
+        .diskon-level-no {
+            font-weight: 700; text-align: center; color: var(--primary-color);
+            font-size: 1.1em; min-width: 30px; 
+        }
+
+        .btn-hapus-diskon-edit {
+            padding: 8px; background-color: var(--danger-color); color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 1em; line-height: 1;
+        }
+        
+        /* Memastikan input di modal memiliki ukuran yang baik */
+        .diskon-level-edit input[type="number"] {
+            margin-bottom: 0 !important;
+        }
+
+        /* --- MEDIA QUERIES (RESPONSIVE HP/TABLET) --- */
+        @media (max-width: 900px) {
+            /* Penyesuaian Kontainer & Font Umum */
+            body { padding: 10px; }
+            .container { margin: 20px auto; padding: 15px; }
+            h2 { font-size: 1.5em; margin-bottom: 15px; }
+            
+            /* Penyesuaian Toolbar */
+            .toolbar { flex-direction: column; align-items: stretch; }
+            #search-input { max-width: 100%; }
+            .nav-button-group .btn-nav { flex-grow: 1; }
+
+            /* Grid Produk (Satu Kolom di HP) */
+            .produk-grid {
+                grid-template-columns: 1fr; 
+            }
+            
+            /* Modal Edit */
+            .modal-content {
+                 margin: 5% auto;
+                 padding: 20px;
+            }
+            
+            /* Input Dasar di Modal agar sejajar di HP */
+            .modal-content > form > div:nth-child(2) {
+                flex-direction: column;
+                gap: 0 !important;
+            }
+            
+            /* --- DISKON DINAMIS DI HP --- */
+            
+            /* Sembunyikan Header Kolom di HP */
+            .diskon-level-header { display: none; }
+            
+            /* Tampilan Diskon untuk HP: Mengubah grid menjadi stack */
+            .diskon-level-edit { 
+                grid-template-columns: 1fr; /* Satu kolom */
+                gap: 5px;
+                padding: 15px;
+                background-color: #fff;
+                border: 1px solid #f0f0f0;
+                border-radius: var(--border-radius);
+                margin-bottom: 10px;
+            }
+            
+            .diskon-level-no {
+                text-align: left;
+                margin-bottom: 5px;
+                border-bottom: 2px solid var(--primary-color);
+                padding-bottom: 5px;
+            }
+            
+            /* Penempatan Tombol Hapus di kanan bawah */
+            .diskon-level-edit > div:last-child {
+                text-align: right;
+                margin-top: 10px;
+            }
+        }
+        .nav-button-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: space-between; /* Tombol pertama kiri, tombol kedua kanan */
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div class="nav-button-group" style="justify-content: space-between; width: 100%;">
+    <button class="btn-nav btn-admin" onclick="goToAdminPage()">Kembali ke Admin</button>
+    <button class="btn-nav btn-input" onclick="goToInputPage()">Input Produk ➕</button>
+</div>
+
+        <h2>📊 Data & Manajemen Produk (CRUD)</h2>
+        
+        <div class="toolbar">
+            <input type="text" id="search-input" placeholder="🔍 Cari Nama Produk..." onkeyup="filterProduk()">
+            <select id="kategori-filter" onchange="filterProduk()">
+                <option value="Semua">Semua Kategori</option>
+                <option value="Makanan">Makanan</option>
+                <option value="Minuman">Minuman</option>
+                <option value="Perlengkapan">Perlengkapan</option>
+                <option value="Lainnya">Lainnya</option>
+            </select>
+        </div>
+        
+        <div class="produk-grid" id="data-produk-grid">
+            <p style="grid-column: 1 / -1; text-align: center;">Memuat data...</p>
+        </div>
+    </div>
+    
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h3>✏️ Edit Data Produk</h3>
+            <form id="editForm">
+                <input type="hidden" id="edit-id">
+                
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 2;">
+                        <label for="edit-nama">Nama Barang</label>
+                        <input type="text" id="edit-nama" required>
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="edit-stok">Stok Saat Ini</label>
+                        <input type="number" id="edit-stok" min="0" required>
+                    </div>
+                </div>
+                
+                <label for="edit-harga">Harga Satuan Asli (Rp)</label>
+                <input type="number" id="edit-harga" min="1" required>
+
+                <hr style="margin: 20px 0;">
+                
+                <div class="diskon-section-modal">
+                    <h4>🏷️ Aturan Diskon Berjenjang (Edit Penuh)</h4>
+                    
+                    <div class="diskon-level-header">
+                        <div style="text-align: center;">No.</div>
+                        <div>Minimal Qty</div>
+                        <div>Harga Satuan Khusus (Rp)</div>
+                        <div>Harga **Total** Khusus (Rp)</div>
+                        <div>Aksi</div>
+                    </div>
+                    
+                    <div id="diskon-container-edit">
+                        </div>
+                    
+                    <button type="button" class="btn-tambah-diskon" onclick="addDiskonLevelEdit()">➕ Tambah Level Diskon</button>
+
+                    <div class="note-diskon" style="font-size: 0.85em; color: var(--text-dark); margin-top: 10px; border-left: 3px solid var(--warning-color); padding: 10px; background-color: #fff8e1;">
+                         **Penting:** Min Qty Level N harus **lebih besar** dari Min Qty Level sebelumnya. Harga diskon harus **lebih murah** dari harga normal.
+                    </div>
+                </div>
+                
+                <button type="submit">💾 Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script>
+        // --- KONFIGURASI FIREBASE ANDA ---
+        const firebaseConfig = {
+    apiKey: "AIzaSyBN7iZX6CNHMEENgsFoS8VHhguRreE-xRs",
+    authDomain: "kasirku-1d33c.firebaseapp.com",
+    databaseURL: "https://kasirku-1d33c-default-rtdb.firebaseio.com/",
+    projectId: "kasirku-1d33c",
+    storageBucket: "kasirku-1d33c.appspot.com",
+    messagingSenderId: "440756410882",
+    appId: "1:440756410882:web:674a56658a0f5241d0651b",
+    measurementId: "G-D7C4321WB4"
+};
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const produkRef = database.ref('Produk'); 
+        const produkGrid = document.getElementById('data-produk-grid');
+        const searchInput = document.getElementById('search-input');
+        const filterInput = document.getElementById('kategori-filter');
+
+        const modal = document.getElementById('editModal');
+        const span = document.getElementsByClassName("close-btn")[0];
+        const diskonContainerEdit = document.getElementById('diskon-container-edit');
+        
+        let allProdukData = []; 
+        let diskonCounterEdit = 0; 
+
+        // Menutup modal saat klik X atau di luar modal
+        span.onclick = function() { modal.style.display = "none"; }
+        window.onclick = function(event) {
+            if (event.target == modal) { modal.style.display = "none"; }
+        }
+
+        // --- FUNGSI NAVIGASI ---
+        
+        function goToAdminPage() {
+             window.location.href = "Admin.html";
+        }
+
+        function formatRupiah(number) {
+            if (number === undefined || number === null) return 'Rp 0';
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
+        }
+
+        // --- 1. READ (Membaca Data) ---
+        produkRef.on('value', (snapshot) => {
+            const produkList = [];
+            snapshot.forEach((childSnapshot) => {
+                const key = childSnapshot.key;
+                const data = childSnapshot.val();
+                produkList.push({ key, ...data });
+            });
+            
+            allProdukData = produkList; 
+            filterProduk(); 
+        });
+
+        // --- FUNGSI FILTER & SEARCH ---
+        function filterProduk() {
+            const searchText = searchInput.value.toLowerCase();
+            const selectedKategori = filterInput.value;
+            
+            const filteredData = allProdukData.filter(produk => {
+                const matchesSearch = produk.nama.toLowerCase().includes(searchText);
+                const matchesFilter = selectedKategori === 'Semua' || produk.kategori === selectedKategori;
+                
+                return matchesSearch && matchesFilter;
+            });
+
+            tampilkanDataProduk(filteredData);
+        }
+        function goToInputPage() {
+    window.location.href = "input.html";
+}
+
+        // --- TAMPILKAN DATA DALAM BENTUK KARTU ---
+        function tampilkanDataProduk(data) {
+            produkGrid.innerHTML = '';
+            
+            if (data.length === 0) {
+                produkGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; padding: 30px;">❌ Data tidak ditemukan untuk filter/pencarian ini.</p>';
+                return;
+            }
+
+            data.forEach(produk => {
+                let diskonHtml = '';
+                const diskonLevels = produk.aturan_diskon_berjenjang;
+                
+                if (diskonLevels && Array.isArray(diskonLevels) && diskonLevels.length > 0) {
+                    diskonHtml += `<div class="card-diskon-section"><h4>🏷️ Diskon Berjenjang (${diskonLevels.length} Level)</h4>`;
+                    
+                    diskonLevels.forEach((diskon, index) => {
+                        let info = `**Level ${index + 1}** (Min Qty: ${diskon.minimal_qty}): `;
+                        
+                        if (diskon.tipe === 'total' && diskon.harga_total_khusus) {
+                            info += `Total ${formatRupiah(diskon.harga_total_khusus)}`;
+                        } else if (diskon.tipe === 'satuan' && diskon.harga_satuan_khusus) {
+                            info += `Satuan ${formatRupiah(diskon.harga_satuan_khusus)}`;
+                        } else {
+                            info += 'Data diskon tidak lengkap';
+                        }
+                        
+                        diskonHtml += `<div class="diskon-item">${info}</div>`;
+                    });
+                    
+                    diskonHtml += `</div>`;
+                } else {
+                    diskonHtml = `<div class="card-diskon-section" style="color: #6c757d;">Tidak ada aturan diskon.</div>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'produk-card';
+                card.setAttribute('data-key', produk.key);
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h3>${produk.nama}</h3>
+                    </div>
+                    <div class="card-info">
+                        <p>Kategori: <strong>${produk.kategori || 'Lainnya'}</strong></p>
+                        <p>Harga Satuan: <strong>${formatRupiah(produk.harga_satuan)}</strong></p>
+                        <p>Stok: <strong><span id="stok-${produk.key}">${produk.stok_saat_ini}</span></strong></p>
+                    </div>
+                    
+                    <div class="stock-control">
+                        <span>➕ Tambah Stok:</span>
+                        <button class="btn-tambah-stok" onclick="tambahStok('${produk.key}', '${produk.nama}')">
+                            tambah
+                        </button>
+                        <button class="btn-kurang-stok" onclick="kurangiStok('${produk.key}', '${produk.nama}')">
+                            kurangi
+                        </button>
+                       
+                    </div>
+                    
+                    ${diskonHtml}
+                    <div class="card-actions">
+                        <button class="btn-edit" onclick="bukaModalEdit('${produk.key}')">✏️ Edit</button>
+                        <button class="btn-delete" onclick="hapusProduk('${produk.key}', '${produk.nama}')">🗑️ Hapus</button>
+                    </div>
+                `;
+                produkGrid.appendChild(card);
+            });
+        }
+        
+        // --- FUNGSI TAMBAH STOK INTERAKTIF ---
+        function tambahStok(key, nama) {
+            
+            const inputJumlah = prompt(`➕ Masukkan jumlah unit yang ingin ditambahkan ke stok "${nama}":`);
+            
+            if (inputJumlah === null) { return; }
+
+            const jumlahTambah = parseInt(inputJumlah);
+            
+            if (isNaN(jumlahTambah) || jumlahTambah <= 0) {
+                alert("❌ Pembatalan: Jumlah yang dimasukkan tidak valid atau nol.");
+                return;
+            }
+            
+            if (confirm(`❓ Yakin ingin menambahkan ${jumlahTambah} unit ke stok "${nama}"?`)) {
+                 produkRef.child(key).once('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const stokLama = data.stok_saat_ini || 0;
+                        const stokBaru = stokLama + jumlahTambah;
+                        
+                        produkRef.child(key).update({ stok_saat_ini: stokBaru })
+                            .then(() => {
+                                alert(`✅ Stok "${nama}" berhasil diupdate: ${stokLama} -> ${stokBaru}.`);
+                            })
+                            .catch(error => {
+                                alert("❌ Gagal menambahkan stok: " + error.message);
+                            });
+                    }
+                });
+            }
+        }
+        // Pastikan produkRef terdefinisi di scope global:
+// const produkRef = firebase.database().ref('produk');
+
+function kurangiStok(key) {
+    if (!key) {
+        alert("❌ Error: key produk tidak tersedia.");
+        return;
+    }
+
+    // Ambil jumlah yang ingin dikurangi dari user
+    const inputJumlah = prompt("➖ Masukkan jumlah unit yang ingin dikurangi dari stok:");
+
+    if (inputJumlah === null) return; // user Cancel
+
+    // Hapus spasi, lalu parse
+    const jumlahKurang = parseInt(inputJumlah.toString().trim(), 10);
+
+    if (isNaN(jumlahKurang) || jumlahKurang <= 0) {
+        alert("❌ Jumlah tidak valid. Masukkan angka positif.");
+        return;
+    }
+
+    // Konfirmasi
+    if (!confirm(`Yakin ingin mengurangi ${jumlahKurang} unit dari stok?`)) return;
+
+    // Ambil data produk sekarang (pakai .get() agar promise-based)
+    produkRef.child(key).get()
+        .then(snapshot => {
+            if (!snapshot.exists()) {
+                alert("❌ Produk tidak ditemukan di database.");
+                return;
+            }
+
+            const data = snapshot.val();
+            // Pastikan field stok di-handle baik string/number/undefined
+            const stokLama = parseInt(data.stok_saat_ini, 10) || 0;
+
+            if (jumlahKurang > stokLama) {
+                // Opsional: jangan biarkan jadi negatif
+                alert(`❌ Gagal: stok saat ini hanya ${stokLama} unit. Tidak bisa mengurangi ${jumlahKurang}.`);
+                return;
+            }
+
+            const stokBaru = stokLama - jumlahKurang;
+
+            // Update stok
+            return produkRef.child(key).update({ stok_saat_ini: stokBaru })
+                .then(() => {
+                    const nama = data.nama || "Produk";
+                    alert(`✅ Stok "${nama}" berhasil diupdate: ${stokLama} → ${stokBaru}`);
+                });
+        })
+        .catch(err => {
+            console.error("Error saat mengurangi stok:", err);
+            alert("❌ Terjadi error saat mengurangi stok: " + (err.message || err));
+        });
+}
+
+
+        // --- 2. DELETE (Menghapus Data) ---
+        function hapusProduk(key, nama) {
+            if (confirm(`❓ Yakin ingin menghapus produk "${nama}"? Data akan hilang permanen!`)) {
+                produkRef.child(key).remove()
+                    .then(() => {
+                        alert(`🗑️ Produk "${nama}" berhasil dihapus.`);
+                    })
+                    .catch(error => {
+                        alert("❌ Gagal menghapus produk: " + error.message);
+                    });
+            }
+        }
+
+        // --- FUNGSI DINAMIS DISKON UNTUK MODAL EDIT ---
+
+        function addDiskonLevelEdit(existingData = {}) {
+            diskonCounterEdit++;
+            
+            const newLevel = document.createElement('div');
+            newLevel.className = 'diskon-level-edit';
+            newLevel.setAttribute('data-level', diskonCounterEdit);
+            
+            const levelNum = diskonCounterEdit;
+            
+            const qty = existingData.minimal_qty || '';
+            let hargaSatuan = '';
+            let hargaTotal = '';
+            
+            if (existingData.tipe === 'satuan' && existingData.harga_satuan_khusus) {
+                hargaSatuan = existingData.harga_satuan_khusus;
+            } else if (existingData.tipe === 'total' && existingData.harga_total_khusus) {
+                hargaTotal = existingData.harga_total_khusus;
+            }
+
+            const colNo = `<div class="diskon-level-no">Level ${levelNum}.</div>`;
+            
+            const colQty = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="number" name="min_qty" placeholder="Min Qty (Cth: 5)" min="2" class="diskon-min-qty-edit" value="${qty}" required>
+                </div>
+            `;
+            
+            const colHargaSatuan = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="number" name="harga_diskon" placeholder="Satuan (Cth: 9700)" min="1" class="diskon-harga-satuan-edit" value="${hargaSatuan}">
+                </div>
+            `;
+            
+            const colHargaTotal = `
+                <div class="form-group" style="margin-bottom: 0;">
+                    <input type="number" name="harga_total" placeholder="Total (Cth: 48500)" min="1" class="diskon-harga-total-edit" value="${hargaTotal}">
+                </div>
+            `;
+            
+            const colHapus = `
+                 <div>
+                    <button type="button" class="btn-hapus-diskon-edit" onclick="removeDiskonLevelEdit(this)">🗑️</button>
+                 </div>
+            `;
+            
+            newLevel.innerHTML = colNo + colQty + colHargaSatuan + colHargaTotal + colHapus;
+            diskonContainerEdit.appendChild(newLevel);
+            
+            updateDiskonNumbersEdit();
+        }
+
+        function removeDiskonLevelEdit(button) {
+            const levelDiv = button.closest('.diskon-level-edit');
+            levelDiv.remove();
+            diskonCounterEdit--;
+            updateDiskonNumbersEdit();
+        }
+
+        function updateDiskonNumbersEdit() {
+            const levels = diskonContainerEdit.querySelectorAll('.diskon-level-edit');
+            levels.forEach((level, index) => {
+                const newNumber = index + 1;
+                level.querySelector('.diskon-level-no').textContent = `Level ${newNumber}.`;
+                level.setAttribute('data-level', newNumber);
+            });
+        }
+
+
+        // --- 3. UPDATE (Mengubah Data) - Logika Modal dan Update ---
+
+        function bukaModalEdit(key) {
+            produkRef.child(key).once('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    document.getElementById('edit-id').value = key;
+                    document.getElementById('edit-nama').value = data.nama;
+                    document.getElementById('edit-harga').value = data.harga_satuan;
+                    document.getElementById('edit-stok').value = data.stok_saat_ini;
+                    
+                    // --- Mengisi data Diskon Berjenjang Penuh ---
+                    diskonContainerEdit.innerHTML = '';
+                    diskonCounterEdit = 0;
+                    
+                    const diskonLevels = data.aturan_diskon_berjenjang;
+                    
+                    if (diskonLevels && Array.isArray(diskonLevels) && diskonLevels.length > 0) {
+                        diskonLevels.forEach(diskon => {
+                            addDiskonLevelEdit(diskon);
+                        });
+                    } else {
+                        // Tambahkan satu baris kosong jika tidak ada diskon
+                        addDiskonLevelEdit();
+                    }
+                    // --------------------------------------------------------
+
+                    modal.style.display = "block";
+                } else {
+                    alert('Data produk tidak ditemukan!');
+                }
+            });
+        }
+        
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const key = document.getElementById('edit-id').value;
+            const nama = document.getElementById('edit-nama').value.trim();
+            const harga = parseInt(document.getElementById('edit-harga').value);
+            const stok = parseInt(document.getElementById('edit-stok').value);
+            
+            // 1. Validasi Data Dasar
+            if (!nama || isNaN(harga) || isNaN(stok) || harga <= 0 || stok < 0) {
+                alert("❌ Error: Mohon isi Nama, Harga (> 0), dan Stok (>= 0) dengan benar.");
+                return;
+            }
+
+            // 2. Ambil dan Validasi Diskon Berjenjang (Dinamis)
+            const diskonLevels = [];
+            const diskonDivs = diskonContainerEdit.querySelectorAll('.diskon-level-edit');
+            
+            let lastMinQty = 1; 
+            let diskonError = false;
+
+            for (let i = 0; i < diskonDivs.length; i++) {
+                const levelDiv = diskonDivs[i];
+                const levelNum = i + 1;
+                
+                const minQtyEl = levelDiv.querySelector('.diskon-min-qty-edit');
+                const hargaSatuanEl = levelDiv.querySelector('.diskon-harga-satuan-edit');
+                const hargaTotalEl = levelDiv.querySelector('.diskon-harga-total-edit');
+
+                const minQty = parseInt(minQtyEl.value);
+                const hargaSatuan = parseInt(hargaSatuanEl.value);
+                const hargaTotal = parseInt(hargaTotalEl.value);
+
+                // Cek apakah semua input kosong, jika ya, skip level ini.
+                const isAllEmpty = isNaN(minQty) && isNaN(hargaSatuan) && isNaN(hargaTotal);
+                if (isAllEmpty) continue;
+                
+                // Cek apakah minimal Qty diisi. Ini wajib jika ada input lain yang diisi.
+                if (isNaN(minQty) || minQty <= 1) {
+                    alert(`❌ Error Diskon Level ${levelNum}: Minimal Qty harus diisi dan lebih besar dari 1.`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // Cek apakah ada satu pun harga yang diisi
+                const isHargaSatuanValid = !isNaN(hargaSatuan) && hargaSatuan > 0;
+                const isHargaTotalValid = !isNaN(hargaTotal) && hargaTotal > 0;
+                
+                if (!isHargaSatuanValid && !isHargaTotalValid) {
+                    alert(`❌ Error Diskon Level ${levelNum}: Anda harus mengisi setidaknya Harga Satuan Khusus atau Harga Total Khusus.`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // VALIDASI 1: Qty minimal harus lebih besar dari Qty level sebelumnya
+                if (minQty <= lastMinQty) {
+                     alert(`❌ Error Diskon Level ${levelNum}: Minimal Qty (${minQty}) harus lebih besar dari Qty level sebelumnya (${lastMinQty}).`);
+                    diskonError = true;
+                    break;
+                }
+                
+                // Tentukan tipe diskon dan validasi harga
+                let diskonData = { minimal_qty: minQty };
+                
+                if (isHargaTotalValid) {
+                    // PRIORITAS 1: Harga Total Khusus
+                    if (hargaTotal >= (harga * minQty)) {
+                        alert(`❌ Error Diskon Level ${levelNum}: Harga Total Khusus (${hargaTotal} Rp) harus lebih murah dari harga normal (${harga * minQty} Rp) untuk ${minQty} unit.`);
+                        diskonError = true;
+                        break;
+                    }
+                    diskonData.tipe = 'total';
+                    diskonData.harga_total_khusus = hargaTotal;
+                    
+                } else if (isHargaSatuanValid) {
+                    // PRIORITAS 2: Harga Satuan Khusus
+                    if (hargaSatuan >= harga) {
+                        alert(`❌ Error Diskon Level ${levelNum}: Harga Satuan Khusus (${hargaSatuan} Rp) harus lebih murah dari Harga Satuan Asli (${harga} Rp).`);
+                        diskonError = true;
+                        break;
+                    }
+                    diskonData.tipe = 'satuan';
+                    diskonData.harga_satuan_khusus = hargaSatuan;
+                }
+                
+                // Simpan data diskon yang telah divalidasi
+                diskonLevels.push(diskonData);
+                
+                // Perbarui Qty minimal level sebelumnya
+                lastMinQty = minQty;
+            }
+
+            if (diskonError) {
+                return; // Batalkan simpan jika ada error diskon
+            }
+
+            // 3. Ambil data produk lama untuk mempertahankan KATEGORI
+            produkRef.child(key).once('value', (snapshot) => {
+                const dataLama = snapshot.val();
+                
+                // 4. Persiapkan Objek Update Data
+                const updateData = {
+                    nama: nama,
+                    harga_satuan: harga,
+                    stok_saat_ini: stok,
+                    kategori: dataLama.kategori, 
+                    // Gunakan aturan diskon yang telah divalidasi dan diurutkan.
+                    aturan_diskon_berjenjang: diskonLevels.length > 0 ? diskonLevels : null,
+                    diubah_pada: new Date().toISOString()
+                };
+
+                // 5. Kirim Update ke Firebase
+                produkRef.child(key).update(updateData)
+                    .then(() => {
+                        alert(`💾 Sukses! Produk "${nama}" berhasil diubah, termasuk ${diskonLevels.length} level diskon.`);
+                        modal.style.display = "none"; 
+                    })
+                    .catch((error) => {
+                        alert(`❌ Gagal menyimpan perubahan: ${error.message}`);
+                        console.error("Error updating data: ", error);
+                    });
+            }); 
+        });
+    </script>
+</body>
+</html>
